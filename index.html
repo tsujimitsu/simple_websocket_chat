@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <title>websocket</title>
+    </head>
+    <body>
+        <form onsubmit="send();return false;" autocomplete="off">
+            <input type="text" id="sendmsg" />
+            <input type="submit" value="send(Press Enter Key, send message)"/>        
+        </form>
+        <div id="message"></div>
+        <script type="text/javascript" src="./jquery-2.2.2.min.js"></script>
+        <script type="text/javascript">
+            $(function(){
+                $('input:visible').first().focus();
+                
+                $(window).on('beforeunload', function() {
+                    return 'ページを移動してもよろしいですか。';
+                });
+                
+                $(window).bind("focus", function(){
+                    $('input:visible').first().focus();
+                });
+                
+                $(window).bind("keydown", function(){
+                    $('input:visible').first().focus();
+                });
+                
+                
+                var server_name = "192.168.1.101";
+                var socket_port = 9999;
+                var uri = "ws://" + server_name + ":" + socket_port + "/";
+                
+                websocket = null;
+                
+                console.log("connect start") 
+                if (websocket == null) {
+                    websocket = new WebSocket(uri);
+                    websocket.onopen = function(event){
+                        $('#message').prepend("<p>" + "you success check in"  + "</p>")
+                        //websocket.send("hello");
+                    };
+                    websocket.onmessage = function(event){
+                        console.log("onmessage");
+                        if (event && event.data) {
+                            $('#message').prepend("<p>" + event.data  + "</p>");
+                        }
+                    };
+                    websocket.onclose = function(event){
+                        console.log("onclose");
+                        websocket = null;
+                    };
+                    websocket.onerror = function(event){
+                        console.log("onerror");
+                        console.log(event);
+                    }
+                    
+                }
+            });
+            
+            function send() {
+                msg = $("#sendmsg").val();
+                websocket.send(msg);
+                $('#message').prepend("<p>" + msg  + "</p>");
+                $("#sendmsg").val("");
+            }
+        </script>
+    </body>
+</html>
+    
